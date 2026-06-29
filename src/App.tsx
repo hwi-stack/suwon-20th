@@ -24,12 +24,29 @@ export default function App() {
   const [showRsvp, setShowRsvp] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [showShareTooltip, setShowShareTooltip] = useState(false);
-  const [isPlayingBgm, setIsPlayingBgm] = useState(true);
+  const [isPlayingBgm, setIsPlayingBgm] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const userMutedRef = useRef(false);
 
   const eventDate = new Date('2026-09-17T10:40:00');
+
+  // Keep state perfectly synced with audio element play/pause events
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onPlay = () => setIsPlayingBgm(true);
+    const onPause = () => setIsPlayingBgm(false);
+
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+
+    return () => {
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
+    };
+  }, []);
 
   // Attempt automatic play on load or on first user interaction (unlock audio context)
   useEffect(() => {
@@ -52,7 +69,6 @@ export default function App() {
       if (audioRef.current && audioRef.current.paused) {
         audioRef.current.play()
           .then(() => {
-            setIsPlayingBgm(true);
             cleanup();
           })
           .catch((err) => {
@@ -76,19 +92,15 @@ export default function App() {
 
   const handleBgmToggle = () => {
     if (!audioRef.current) return;
-    if (isPlayingBgm) {
-      audioRef.current.pause();
-      setIsPlayingBgm(false);
-      userMutedRef.current = true;
-    } else {
+    if (audioRef.current.paused) {
       userMutedRef.current = false;
       audioRef.current.play()
-        .then(() => {
-          setIsPlayingBgm(true);
-        })
         .catch((err) => {
           console.warn("Audio play failed:", err);
         });
+    } else {
+      audioRef.current.pause();
+      userMutedRef.current = true;
     }
   };
 
