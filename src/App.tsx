@@ -10,10 +10,7 @@ import {
   ChevronDown,
   ChevronUp,
   Settings,
-  Phone,
-  Music,
-  Volume2,
-  VolumeX
+  Phone
 } from 'lucide-react';
 import LocationMap from './components/LocationMap';
 import RsvpForm from './components/RsvpForm';
@@ -24,92 +21,8 @@ export default function App() {
   const [showRsvp, setShowRsvp] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [showShareTooltip, setShowShareTooltip] = useState(false);
-  const [isPlayingBgm, setIsPlayingBgm] = useState(true);
-
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const userMutedRef = useRef(false);
 
   const eventDate = new Date('2026-09-17T10:40:00');
-
-  // Keep state perfectly synced with audio element play/pause events
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const onPlay = () => setIsPlayingBgm(true);
-    const onPause = () => setIsPlayingBgm(false);
-
-    audio.addEventListener('play', onPlay);
-    audio.addEventListener('pause', onPause);
-
-    return () => {
-      audio.removeEventListener('play', onPlay);
-      audio.removeEventListener('pause', onPause);
-    };
-  }, []);
-
-  // Attempt automatic play on load or on first user interaction (unlock audio context)
-  useEffect(() => {
-    // Attempt standard autoplay
-    if (audioRef.current) {
-      audioRef.current.play()
-        .then(() => {
-          setIsPlayingBgm(true);
-        })
-        .catch((err) => {
-          console.warn("Autoplay was blocked by the browser. Waiting for user interaction to play.", err);
-        });
-    }
-
-    const startAudioOnInteraction = () => {
-      if (userMutedRef.current) {
-        cleanup();
-        return;
-      }
-      if (audioRef.current && audioRef.current.paused) {
-        audioRef.current.play()
-          .then(() => {
-            cleanup();
-          })
-          .catch((err) => {
-            console.warn("Audio play on interaction failed:", err);
-          });
-      } else {
-        cleanup();
-      }
-    };
-
-    const cleanup = () => {
-      window.removeEventListener('click', startAudioOnInteraction);
-      window.removeEventListener('touchstart', startAudioOnInteraction);
-    };
-
-    window.addEventListener('click', startAudioOnInteraction);
-    window.addEventListener('touchstart', startAudioOnInteraction);
-
-    return () => cleanup();
-  }, []);
-
-  const handleBgmToggle = (e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-    }
-    if (!audioRef.current) return;
-    if (isPlayingBgm) {
-      audioRef.current.pause();
-      setIsPlayingBgm(false);
-      userMutedRef.current = true;
-    } else {
-      userMutedRef.current = false;
-      audioRef.current.play()
-        .then(() => {
-          setIsPlayingBgm(true);
-        })
-        .catch((err) => {
-          console.warn("Audio play failed:", err);
-        });
-    }
-  };
 
   const handleDownloadIcs = () => {
     const icsContent = [
@@ -167,45 +80,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100/60 font-sans flex items-center justify-center py-0 sm:py-6 md:py-10 selection:bg-amber-100 selection:text-amber-900">
-      <audio
-        ref={audioRef}
-        src="/bgm.mp3"
-        loop
-        preload="auto"
-        autoPlay
-      />
       {/* Mobile Frame Container */}
       <div className="w-full max-w-md bg-[#FAF9F5] min-h-screen sm:min-h-[840px] sm:rounded-[40px] shadow-2xl shadow-slate-900/10 border-0 sm:border-[8px] border-slate-900/5 flex flex-col justify-between overflow-hidden relative">
         
         {/* Top Premium Gold Highlight Bar */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-slate-900 via-[#C5A059] to-slate-900 z-50" />
 
-        {/* Floating Action Buttons (BGM & Share) */}
+        {/* Floating Action Buttons (Share) */}
         <div className="absolute top-4 right-4 flex items-center gap-2.5 z-40">
-          {/* BGM Toggle Button */}
-          <button
-            onClick={handleBgmToggle}
-            id="bgm-toggle-button"
-            className={`p-2.5 rounded-full border shadow-xs transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer relative ${
-              isPlayingBgm 
-                ? 'bg-slate-900 border-slate-900 text-[#C5A059]' 
-                : 'bg-white/90 backdrop-blur-xs border-slate-200 text-slate-700 hover:bg-white'
-            }`}
-            title={isPlayingBgm ? '배경음악 끄기' : '배경음악 켜기'}
-          >
-            {isPlayingBgm ? (
-              <>
-                <Volume2 className="w-4 h-4 animate-bounce" />
-                <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C5A059] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C5A059]"></span>
-                </span>
-              </>
-            ) : (
-              <VolumeX className="w-4 h-4 text-slate-400" />
-            )}
-          </button>
-
           {/* Share Button */}
           <button
             onClick={handleShare}
