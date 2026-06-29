@@ -150,7 +150,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-100/60 font-sans flex items-center justify-center py-0 sm:py-6 md:py-10 selection:bg-amber-100 selection:text-amber-900">
       <audio
         ref={audioRef}
-        src="https://docs.google.com/uc?export=download&id=1DgdV4DEDnBe42e3T0cbjv9ubtMdW01FE"
+        src="/bgm.mp3"
         loop
         preload="auto"
         autoPlay
