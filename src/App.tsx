@@ -24,18 +24,64 @@ export default function App() {
   const [showRsvp, setShowRsvp] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [showShareTooltip, setShowShareTooltip] = useState(false);
-  const [isPlayingBgm, setIsPlayingBgm] = useState(false);
+  const [isPlayingBgm, setIsPlayingBgm] = useState(true);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const userMutedRef = useRef(false);
 
   const eventDate = new Date('2026-09-17T10:40:00');
+
+  // Attempt automatic play on load or on first user interaction (unlock audio context)
+  useEffect(() => {
+    // Attempt standard autoplay
+    if (audioRef.current) {
+      audioRef.current.play()
+        .then(() => {
+          setIsPlayingBgm(true);
+        })
+        .catch((err) => {
+          console.warn("Autoplay was blocked by the browser. Waiting for user interaction to play.", err);
+        });
+    }
+
+    const startAudioOnInteraction = () => {
+      if (userMutedRef.current) {
+        cleanup();
+        return;
+      }
+      if (audioRef.current && audioRef.current.paused) {
+        audioRef.current.play()
+          .then(() => {
+            setIsPlayingBgm(true);
+            cleanup();
+          })
+          .catch((err) => {
+            console.warn("Audio play on interaction failed:", err);
+          });
+      } else {
+        cleanup();
+      }
+    };
+
+    const cleanup = () => {
+      window.removeEventListener('click', startAudioOnInteraction);
+      window.removeEventListener('touchstart', startAudioOnInteraction);
+    };
+
+    window.addEventListener('click', startAudioOnInteraction);
+    window.addEventListener('touchstart', startAudioOnInteraction);
+
+    return () => cleanup();
+  }, []);
 
   const handleBgmToggle = () => {
     if (!audioRef.current) return;
     if (isPlayingBgm) {
       audioRef.current.pause();
       setIsPlayingBgm(false);
+      userMutedRef.current = true;
     } else {
+      userMutedRef.current = false;
       audioRef.current.play()
         .then(() => {
           setIsPlayingBgm(true);
@@ -107,6 +153,7 @@ export default function App() {
         src="https://docs.google.com/uc?export=download&id=1DgdV4DEDnBe42e3T0cbjv9ubtMdW01FE"
         loop
         preload="auto"
+        autoPlay
       />
       {/* Mobile Frame Container */}
       <div className="w-full max-w-md bg-[#FAF9F5] min-h-screen sm:min-h-[840px] sm:rounded-[40px] shadow-2xl shadow-slate-900/10 border-0 sm:border-[8px] border-slate-900/5 flex flex-col justify-between overflow-hidden relative">
