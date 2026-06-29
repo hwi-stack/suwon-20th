@@ -9,6 +9,8 @@ export default function RsvpForm() {
   const [org, setOrg] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [attendeeCount, setAttendeeCount] = useState(1);
+  const [phoneConsent, setPhoneConsent] = useState(false);
   const [consent, setConsent] = useState(false);
   const [showConsentTerms, setShowConsentTerms] = useState(false);
 
@@ -35,19 +37,23 @@ export default function RsvpForm() {
 
     // Validation
     if (!org.trim()) {
-      setErrorMsg('기관명을 입력해 주세요.');
+      setErrorMsg('소속명을 입력해 주세요.');
       return;
     }
     if (!name.trim()) {
-      setErrorMsg('참석자명을 입력해 주세요.');
+      setErrorMsg('참석 대표자명(직책)을 입력해 주세요.');
       return;
     }
     if (!phone.trim() || phone.replace(/[^0-9]/g, '').length < 10) {
       setErrorMsg('올바른 핸드폰 번호를 입력해 주세요.');
       return;
     }
+    if (!phoneConsent) {
+      setErrorMsg('핸드폰 번호 수집 및 문자 수신 동의에 체크해 주세요.');
+      return;
+    }
     if (!consent) {
-      setErrorMsg('개인정보 제공에 동의하셔야 참석 등록이 가능합니다.');
+      setErrorMsg('개인정보 수집 및 이용 동의에 체크해 주세요.');
       return;
     }
 
@@ -57,12 +63,12 @@ export default function RsvpForm() {
       // Create a document with an auto-generated ID from client collection reference
       const rsvpColRef = collection(db, 'rsvps');
       const newDocRef = doc(rsvpColRef);
-      const rsvpId = newDocRef.id;
 
       const payload = {
         organization: org.trim(),
         name: name.trim(),
         phone: phone.trim(),
+        attendeeCount: Number(attendeeCount) || 1,
         consent: true,
         createdAt: serverTimestamp()
       };
@@ -74,6 +80,8 @@ export default function RsvpForm() {
       setOrg('');
       setName('');
       setPhone('');
+      setAttendeeCount(1);
+      setPhoneConsent(false);
       setConsent(false);
     } catch (err: any) {
       console.error("RSVP Submission Error:", err);
@@ -139,14 +147,14 @@ export default function RsvpForm() {
             {/* Organization */}
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-700 flex items-center gap-1">
-                기관명 <span className="text-rose-500">*</span>
+                소속명 <span className="text-rose-500">*</span>
                 <span className="text-[10px] font-normal text-gray-400">(개인 참여 시 &apos;개인&apos; 입력)</span>
               </label>
               <input
                 type="text"
                 value={org}
                 onChange={(e) => setOrg(e.target.value)}
-                placeholder="예: 수원종합사회복지관"
+                placeholder="예: 수원시장애인종합복지관"
                 maxLength={80}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-amber-500 focus:bg-white rounded-xl text-sm text-gray-800 transition-all focus:outline-none"
@@ -156,17 +164,37 @@ export default function RsvpForm() {
             {/* Name */}
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-700">
-                참석자명 <span className="text-rose-500">*</span>
+                참석 대표자명(직책) <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="예: 홍길동"
+                placeholder="예: 홍길동(관장)"
                 maxLength={50}
                 required
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-amber-500 focus:bg-white rounded-xl text-sm text-gray-800 transition-all focus:outline-none"
               />
+            </div>
+
+            {/* Attendee Count */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-700 flex items-center gap-1">
+                총 참석자 인원수 <span className="text-rose-500">*</span>
+                <span className="text-[10px] font-normal text-gray-400">(본인 포함 총 인원수)</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={attendeeCount}
+                  onChange={(e) => setAttendeeCount(Math.max(1, parseInt(e.target.value) || 1))}
+                  required
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-amber-500 focus:bg-white rounded-xl text-sm text-gray-800 transition-all focus:outline-none font-mono"
+                />
+                <span className="absolute right-4 top-3 text-sm text-gray-500 font-medium select-none">명</span>
+              </div>
             </div>
 
             {/* Phone */}
@@ -183,6 +211,20 @@ export default function RsvpForm() {
                 required
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-amber-500 focus:bg-white rounded-xl text-sm text-gray-800 transition-all focus:outline-none"
               />
+              {/* Phone Consent Check */}
+              <div className="flex items-start gap-2.5 mt-2 px-1">
+                <input
+                  type="checkbox"
+                  id="phoneConsent"
+                  checked={phoneConsent}
+                  onChange={(e) => setPhoneConsent(e.target.checked)}
+                  required
+                  className="mt-0.5 w-4 h-4 rounded-xs accent-slate-800 border-gray-300 cursor-pointer"
+                />
+                <label htmlFor="phoneConsent" className="text-[11px] text-gray-500 leading-normal cursor-pointer font-medium select-none">
+                  행사 안내 문자(SMS) 수신 및 연락처 수집에 동의합니다. <span className="text-rose-500 font-bold">*</span>
+                </label>
+              </div>
             </div>
 
             {/* Consent Terms Checkbox */}
@@ -221,7 +263,7 @@ export default function RsvpForm() {
                   >
                     <div className="bg-white border border-gray-150 rounded-lg p-3 text-[10px] text-gray-500 leading-relaxed max-h-24 overflow-y-auto">
                       <p className="font-bold mb-1 text-gray-700">1. 개인정보 수집·이용 동의</p>
-                      <p>• 수집 및 이용 항목: 기관명, 참석자명, 핸드폰 번호</p>
+                      <p>• 수집 및 이용 항목: 소속명, 참석 대표자명(직책), 총 참석자 인원수, 핸드폰 번호</p>
                       <p>• 수집 및 이용 목적: 수원시장애인종합복지관 개관 20주년 기념식 초청자 참석 현황 관리 및 안내 연락</p>
                       <p>• 보유 및 이용 기간: 기념식 행사 종료 및 참석자 정산 처리 완료 후 즉시 파기 (최대 1개월 이내)</p>
                       <p>• 동의 거부 권리: 귀하는 개인정보 수집 및 이용 동의를 거부할 권리가 있으며, 동의 거부 시 초청장 참석 여부 등록 및 행사 참가 통계 처리가 불가능합니다.</p>

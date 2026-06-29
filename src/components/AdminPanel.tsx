@@ -125,9 +125,9 @@ export default function AdminPanel() {
     setMessage(null);
     if (passcode.trim() === ADMIN_PASSCODE) {
       setUnlockedWithPasscode(true);
-      setMessage({ text: '관리자 비밀번호로 간편 로그인되었습니다. (뷰 전용)', type: 'success' });
+      setMessage({ text: '관리자 비밀번호로 로그인되었습니다.', type: 'success' });
     } else {
-      setMessage({ text: '비밀번호가 올바르지 않습니다. (팁: 0926)', type: 'error' });
+      setMessage({ text: '비밀번호가 올바르지 않습니다.', type: 'error' });
     }
   };
 
@@ -171,6 +171,7 @@ export default function AdminPanel() {
           name: data.name,
           phone: data.phone,
           consent: data.consent,
+          attendeeCount: data.attendeeCount,
           createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
         });
       });
@@ -212,11 +213,12 @@ export default function AdminPanel() {
     if (rsvps.length === 0) return;
     
     // Korean headers
-    const headers = ['번호', '기관명', '참석자명', '핸드폰번호', '등록일자'];
+    const headers = ['번호', '소속명', '참석 대표자명(직책)', '총 참석자 인원수', '핸드폰번호', '등록일자'];
     const rows = filteredRsvps.map((rsvp, idx) => [
       idx + 1,
       `"${rsvp.organization.replace(/"/g, '""')}"`,
       `"${rsvp.name.replace(/"/g, '""')}"`,
+      rsvp.attendeeCount || 1,
       `"${rsvp.phone}"`,
       `"${rsvp.createdAt ? rsvp.createdAt.toLocaleDateString() : ''}"`
     ]);
@@ -244,6 +246,7 @@ export default function AdminPanel() {
   });
 
   const isAccessAllowed = isAdmin || unlockedWithPasscode;
+  const totalAttendeeCount = rsvps.reduce((sum, r) => sum + (r.attendeeCount || 1), 0);
 
   return (
     <div className="py-8 px-4 bg-white rounded-3xl border border-gray-100 shadow-sm space-y-6">
@@ -276,80 +279,31 @@ export default function AdminPanel() {
 
       {/* LOCK SCREEN: AUTHENTICATION / ACCESS CONTROLS */}
       {!isAccessAllowed && (
-        <div className="space-y-6 pt-2">
-          {/* Option A: Quick Passcode Login */}
-          <div className="bg-amber-50/40 border border-amber-100 rounded-2xl p-4.5 space-y-3">
+        <div className="space-y-4 pt-2">
+          {/* Quick Passcode Login */}
+          <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 space-y-3.5">
             <div className="flex items-center gap-1.5">
-              <Key className="w-4 h-4 text-amber-700" />
-              <h4 className="text-xs font-extrabold text-amber-900">비밀번호 간편 확인</h4>
+              <Key className="w-4 h-4 text-slate-700" />
+              <h4 className="text-xs font-extrabold text-slate-800">비밀번호 인증</h4>
             </div>
-            <p className="text-[11px] text-amber-700 leading-relaxed">
-              Google 로그인 없이 초청장 비밀번호를 입력해 등록 리스트를 즉시 확인할 수 있습니다.
-              <br />
-              <span className="font-semibold text-amber-800">(비밀번호: 4자리 &quot;0926&quot;)</span>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              등록 리스트 확인을 위해 관리자 비밀번호 4자리를 입력해 주세요.
             </p>
             <form onSubmit={handlePasscodeSubmit} className="flex gap-2">
               <input
                 type="password"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
-                placeholder="비밀번호 8자리"
+                placeholder="비밀번호 4자리"
                 className="flex-1 px-3 py-2 bg-white border border-gray-200 focus:border-amber-500 rounded-lg text-xs transition-all focus:outline-none"
               />
               <button
                 type="submit"
-                className="py-2 px-3 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors"
+                className="py-2 px-4.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer"
               >
                 확인
               </button>
             </form>
-          </div>
-
-          {/* Option B: Standard Google Authentication */}
-          <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4.5 space-y-3 text-center">
-            <div className="text-center space-y-1">
-              <h4 className="text-xs font-bold text-gray-800 flex items-center justify-center gap-1">
-                <Building className="w-3.5 h-3.5 text-gray-400" /> 구글 계정으로 로그인하기
-              </h4>
-              <p className="text-[11px] text-gray-500 leading-normal">
-                정식 관리자 계정으로 실시간 동기화 명단을 안전하게 조회합니다.
-              </p>
-            </div>
-
-            {currentUser ? (
-              <div className="space-y-3">
-                <div className="p-2 bg-white border border-gray-200 rounded-lg text-left text-[11px] text-gray-600">
-                  <p className="font-bold text-gray-800">접속 계정:</p>
-                  <p className="truncate">{currentUser.email}</p>
-                  <span className="inline-block mt-1 text-[9px] px-1.5 py-0.5 bg-yellow-100 text-yellow-800 font-bold rounded-md">
-                    비승인 관리자 (정식 등록 필요)
-                  </span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={registerCurrentAsAdmin}
-                    className="py-2 px-3 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition-all shadow-xs"
-                  >
-                    관리자 등록하기
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="py-2 px-3 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-1"
-                  >
-                    <LogOut className="w-3.5 h-3.5 text-gray-400" /> 로그아웃
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={handleGoogleLogin}
-                className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-700 flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98]"
-              >
-                <LogIn className="w-4 h-4 text-rose-500" />
-                Google 계정으로 로그인
-              </button>
-            )}
           </div>
         </div>
       )}
@@ -361,35 +315,29 @@ export default function AdminPanel() {
           <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-2xl">
             <div className="text-[11px] text-slate-500">
               <span className="font-semibold text-slate-700">관리자 인증 상태: </span>
-              {unlockedWithPasscode ? (
-                <span className="text-amber-700 font-bold">비밀번호 잠금해제 뷰어</span>
-              ) : (
-                <span className="text-emerald-700 font-bold">Google Admin ({currentUser?.email?.split('@')[0]})</span>
-              )}
+              <span className="text-slate-700 font-bold">인증 완료</span>
             </div>
             <button
               onClick={handleLogout}
-              className="py-1 px-2.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 hover:bg-slate-100 flex items-center gap-1 transition-colors"
+              className="py-1 px-2.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 hover:bg-slate-100 flex items-center gap-1 transition-colors cursor-pointer"
             >
               <LogOut className="w-3 h-3 text-slate-400" /> 로그아웃
             </button>
           </div>
 
           {/* Counters Widgets */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-100 rounded-2xl p-4 text-center">
-              <Users className="w-5 h-5 text-amber-600 mx-auto mb-1.5" />
-              <div className="text-xs text-amber-800">총 참석 신청 건수</div>
-              <div className="text-2xl font-black text-amber-900 tracking-tight mt-0.5">
-                {rsvps.length} <span className="text-xs font-normal">건</span>
-              </div>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-slate-50 border border-slate-100 rounded-xl p-2.5 text-center">
+              <div className="text-[9.5px] font-bold text-slate-500">신청 건수</div>
+              <div className="text-base font-black text-slate-800 mt-1">{rsvps.length}건</div>
             </div>
-            <div className="bg-gradient-to-br from-indigo-500/10 to-indigo-600/5 border border-indigo-100 rounded-2xl p-4 text-center">
-              <Building className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
-              <div className="text-xs text-indigo-800">고유 참여 기관 수</div>
-              <div className="text-2xl font-black text-indigo-900 tracking-tight mt-0.5">
-                {new Set(rsvps.map((r) => r.organization)).size} <span className="text-xs font-normal">개</span>
-              </div>
+            <div className="bg-amber-50/60 border border-amber-100 rounded-xl p-2.5 text-center">
+              <div className="text-[9.5px] font-bold text-amber-800">총 인원수</div>
+              <div className="text-base font-black text-amber-900 mt-1">{totalAttendeeCount}명</div>
+            </div>
+            <div className="bg-indigo-50/60 border border-indigo-100 rounded-xl p-2.5 text-center">
+              <div className="text-[9.5px] font-bold text-indigo-800">소속 수</div>
+              <div className="text-base font-black text-indigo-900 mt-1">{new Set(rsvps.map((r) => r.organization)).size}개</div>
             </div>
           </div>
 
@@ -401,14 +349,14 @@ export default function AdminPanel() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="기관명 / 참석자명 검색"
+                placeholder="소속명 / 참석자명 검색"
                 className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-100 focus:bg-white focus:border-slate-300 rounded-xl text-xs transition-all focus:outline-none"
               />
             </div>
             <button
               onClick={handleExportCSV}
               disabled={rsvps.length === 0}
-              className={`py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-sm transition-colors ${
+              className={`py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-sm transition-colors cursor-pointer ${
                 rsvps.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
@@ -435,15 +383,18 @@ export default function AdminPanel() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] text-slate-400 font-mono font-bold">
                           #{filteredRsvps.length - idx}
                         </span>
                         <span className="text-xs font-extrabold text-slate-800">
                           {rsvp.name}
                         </span>
+                        <span className="text-[9px] px-1.5 py-0.5 bg-[#C5A059]/10 text-[#C5A059] font-bold rounded-md">
+                          {rsvp.attendeeCount || 1}명 참석
+                        </span>
                       </div>
-                      <p className="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mt-0.5">
+                      <p className="text-[11px] font-semibold text-slate-600 flex items-center gap-1 mt-1.5">
                         <Building className="w-3 h-3 text-slate-400" /> {rsvp.organization}
                       </p>
                     </div>
@@ -453,13 +404,13 @@ export default function AdminPanel() {
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => rsvp.id && handleDeleteRsvp(rsvp.id)}
-                          className="py-1 px-2 bg-red-600 text-white text-[10px] font-bold rounded-lg hover:bg-red-700"
+                          className="py-1 px-2 bg-red-600 text-white text-[10px] font-bold rounded-lg hover:bg-red-700 cursor-pointer"
                         >
                           삭제
                         </button>
                         <button
                           onClick={() => setDeleteId(null)}
-                          className="py-1 px-2 bg-white border border-gray-200 text-gray-600 text-[10px] font-bold rounded-lg hover:bg-gray-50"
+                          className="py-1 px-2 bg-white border border-gray-200 text-gray-600 text-[10px] font-bold rounded-lg hover:bg-gray-50 cursor-pointer"
                         >
                           취소
                         </button>
@@ -467,7 +418,7 @@ export default function AdminPanel() {
                     ) : (
                       <button
                         onClick={() => setDeleteId(rsvp.id || null)}
-                        className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-white transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-red-500 rounded-lg hover:bg-white transition-colors cursor-pointer"
                         title="참석 등록 삭제"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

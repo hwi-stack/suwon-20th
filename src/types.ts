@@ -5,6 +5,7 @@ export interface RsvpData {
   phone: string;
   consent: boolean;
   createdAt: any; // Can be Timestamp or Date
+  attendeeCount?: number;
 }
 
 export interface AdminUser {
