@@ -24,7 +24,7 @@ export default function App() {
   const [showRsvp, setShowRsvp] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [showShareTooltip, setShowShareTooltip] = useState(false);
-  const [isPlayingBgm, setIsPlayingBgm] = useState(false);
+  const [isPlayingBgm, setIsPlayingBgm] = useState(true);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const userMutedRef = useRef(false);
@@ -90,17 +90,24 @@ export default function App() {
     return () => cleanup();
   }, []);
 
-  const handleBgmToggle = () => {
+  const handleBgmToggle = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     if (!audioRef.current) return;
-    if (audioRef.current.paused) {
+    if (isPlayingBgm) {
+      audioRef.current.pause();
+      setIsPlayingBgm(false);
+      userMutedRef.current = true;
+    } else {
       userMutedRef.current = false;
       audioRef.current.play()
+        .then(() => {
+          setIsPlayingBgm(true);
+        })
         .catch((err) => {
           console.warn("Audio play failed:", err);
         });
-    } else {
-      audioRef.current.pause();
-      userMutedRef.current = true;
     }
   };
 
