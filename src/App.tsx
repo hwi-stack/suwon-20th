@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Calendar,
@@ -19,138 +19,31 @@ import LocationMap from './components/LocationMap';
 import RsvpForm from './components/RsvpForm';
 import AdminPanel from './components/AdminPanel';
 
-// Web Audio Ambient Synthesizer for high-quality background music
-class AmbientSynth {
-  private ctx: AudioContext | null = null;
-  private isPlaying = false;
-  private timer: any = null;
-  private activeOscillators: { osc: OscillatorNode; gain: GainNode }[] = [];
-
-  public toggle(forceState?: boolean) {
-    const targetState = forceState !== undefined ? forceState : !this.isPlaying;
-    if (targetState === this.isPlaying) return targetState;
-
-    if (targetState) {
-      try {
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-        this.ctx = new AudioContextClass();
-        this.isPlaying = true;
-
-        // Elegant, professional major/pentatonic chord progression (Fmaj7 - G6 - Em7 - Am7)
-        const chords = [
-          [174.61, 220.00, 261.63, 329.63], // Fmaj7 (F3, A3, C4, E4)
-          [196.00, 246.94, 293.66, 329.63], // G6 (G3, B3, D4, E4)
-          [164.81, 196.00, 246.94, 293.66], // Em7 (E3, G3, B3, D4)
-          [220.00, 261.63, 329.63, 392.00]  // Am7 (A3, C4, E4, G4)
-        ];
-
-        let chordIdx = 0;
-
-        const playChord = () => {
-          if (!this.ctx || this.ctx.state === 'suspended') return;
-          const t = this.ctx.currentTime;
-          const chord = chords[chordIdx];
-
-          // Delicate Low-pass Filter for deep warm acoustic feeling
-          const filter = this.ctx.createBiquadFilter();
-          filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(420, t);
-          filter.Q.setValueAtTime(1.2, t);
-          filter.connect(this.ctx.destination);
-
-          // Master chord volume envelope
-          const masterGain = this.ctx.createGain();
-          masterGain.gain.setValueAtTime(0, t);
-          masterGain.gain.linearRampToValueAtTime(0.04, t + 1.5);
-          masterGain.gain.exponentialRampToValueAtTime(0.0001, t + 4.9);
-          masterGain.connect(filter);
-
-          chord.forEach((freq, idx) => {
-            if (!this.ctx) return;
-            const osc = this.ctx.createOscillator();
-            const oscGain = this.ctx.createGain();
-
-            // Round sine bass and sweet warm triangle leads
-            osc.type = idx === 0 ? 'sine' : 'triangle';
-            osc.frequency.setValueAtTime(freq, t);
-
-            // Subtle pitch detuning for expensive-sounding analog chorusing
-            if (idx > 0) {
-              osc.detune.setValueAtTime((Math.random() - 0.5) * 5, t);
-            }
-
-            oscGain.gain.setValueAtTime(idx === 0 ? 0.25 : 0.12, t);
-
-            osc.connect(oscGain);
-            oscGain.connect(masterGain);
-            osc.start(t);
-            osc.stop(t + 5.0);
-
-            this.activeOscillators.push({ osc, gain: oscGain });
-          });
-
-          // Garbage collect old oscillators safely
-          setTimeout(() => {
-            this.activeOscillators = this.activeOscillators.filter(item => item.osc.frequency.value !== chord[0]);
-          }, 5200);
-
-          chordIdx = (chordIdx + 1) % chords.length;
-        };
-
-        playChord();
-        this.timer = setInterval(playChord, 5000);
-      } catch (e) {
-        console.warn('Audio Context initialization failed:', e);
-        this.isPlaying = false;
-      }
-    } else {
-      this.stop();
-    }
-
-    return this.isPlaying;
-  }
-
-  public stop() {
-    this.isPlaying = false;
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-    this.activeOscillators.forEach(({ osc }) => {
-      try {
-        osc.stop();
-      } catch (e) {}
-    });
-    this.activeOscillators = [];
-    if (this.ctx) {
-      try {
-        this.ctx.close();
-      } catch (e) {}
-      this.ctx = null;
-    }
-  }
-}
-
 export default function App() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [showRsvp, setShowRsvp] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [showShareTooltip, setShowShareTooltip] = useState(false);
   const [isPlayingBgm, setIsPlayingBgm] = useState(false);
-  const [synth] = useState(() => new AmbientSynth());
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const eventDate = new Date('2026-09-17T10:40:00');
 
-  // Handle unmount cleanups for synth audio nodes
-  useEffect(() => {
-    return () => {
-      synth.stop();
-    };
-  }, [synth]);
-
   const handleBgmToggle = () => {
-    const newState = synth.toggle();
-    setIsPlayingBgm(newState);
+    if (!audioRef.current) return;
+    if (isPlayingBgm) {
+      audioRef.current.pause();
+      setIsPlayingBgm(false);
+    } else {
+      audioRef.current.play()
+        .then(() => {
+          setIsPlayingBgm(true);
+        })
+        .catch((err) => {
+          console.warn("Audio play failed:", err);
+        });
+    }
   };
 
   const handleDownloadIcs = () => {
@@ -209,6 +102,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100/60 font-sans flex items-center justify-center py-0 sm:py-6 md:py-10 selection:bg-amber-100 selection:text-amber-900">
+      <audio
+        ref={audioRef}
+        src="https://docs.google.com/uc?export=download&id=1DgdV4DEDnBe42e3T0cbjv9ubtMdW01FE"
+        loop
+        preload="auto"
+      />
       {/* Mobile Frame Container */}
       <div className="w-full max-w-md bg-[#FAF9F5] min-h-screen sm:min-h-[840px] sm:rounded-[40px] shadow-2xl shadow-slate-900/10 border-0 sm:border-[8px] border-slate-900/5 flex flex-col justify-between overflow-hidden relative">
         
@@ -428,7 +327,7 @@ export default function App() {
                 {/* Event Core Schedule Info in clean premium layout */}
                 <div className="space-y-2 pt-4 font-sans">
                   <div className="text-sm font-semibold text-slate-800 tracking-wide">
-                    2026. 9. 17 (금) 오전 10:40 - 12:00
+                    2026. 9. 17 (목) 오전 10:40 - 12:00
                   </div>
                   <div className="text-xs font-medium text-slate-500 tracking-wide">
                     수원중앙침례교회 4층 중앙예닮홀
@@ -517,7 +416,7 @@ export default function App() {
                   <div>
                     <h4 className="text-xs font-bold text-slate-900">일시</h4>
                     <p className="text-xs text-slate-600 mt-1 font-medium">
-                      2026년 9월 17일(금) 오전 10:40 ~ 12:00
+                      2026년 9월 17일(목) 오전 10:40 ~ 12:00
                     </p>
                   </div>
                 </div>

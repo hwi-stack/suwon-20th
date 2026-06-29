@@ -139,7 +139,7 @@ export default function LocationMap() {
               
               {/* Text content inside banner */}
               <text x="0" y="-17" fill="#0f172a" fontSize="8.5" fontWeight="900" fontFamily="sans-serif" textAnchor="middle">수원중앙침례교회</text>
-              <text x="0" y="-8" fill="#E11D48" fontSize="7.5" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">4F 중앙예닮홀 (식장)</text>
+              <text x="0" y="-8" fill="#E11D48" fontSize="7.5" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">4F 중앙예닮홀</text>
             </g>
           </g>
 
