@@ -1,0 +1,6 @@
+{
+  "name": "수원시장애인종합복지관 개관 20주년 초청장",
+  "description": "수원시장애인종합복지관 개관 20주년 기념식 모바일 초청장 및 참석 여부 등록 시스템",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

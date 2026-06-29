@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "rsvp": {
+      "title": "RSVP",
+      "description": "An attendance RSVP submission for the 20th anniversary ceremony.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "The unique ID of the RSVP." },
+        "organization": { "type": "string", "description": "The organization name of the attendee." },
+        "name": { "type": "string", "description": "The attendee's name." },
+        "phone": { "type": "string", "description": "The attendee's phone number." },
+        "consent": { "type": "boolean", "description": "Consent to provide personal information." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the RSVP was created." }
+      },
+      "required": ["organization", "name", "phone", "consent", "createdAt"]
+    },
+    "admin": {
+      "title": "Admin",
+      "description": "A user marked as an administrator who can view RSVPs.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user's unique Firebase Auth UID." },
+        "email": { "type": "string", "description": "The user's email address." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the admin was added." }
+      },
+      "required": ["uid", "email", "createdAt"]
+    }
+  },
+  "firestore": {
+    "rsvps/{rsvpId}": {
+      "schema": "rsvp",
+      "description": "RSVP submissions for the anniversary ceremony."
+    },
+    "admins/{adminId}": {
+      "schema": "admin",
+      "description": "Users authorized as administrators."
+    }
+  }
+}
