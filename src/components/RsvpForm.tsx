@@ -10,7 +10,6 @@ export default function RsvpForm() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [attendeeCount, setAttendeeCount] = useState(1);
-  const [phoneConsent, setPhoneConsent] = useState(false);
   const [consent, setConsent] = useState(false);
   const [showConsentTerms, setShowConsentTerms] = useState(false);
 
@@ -48,10 +47,6 @@ export default function RsvpForm() {
       setErrorMsg('올바른 핸드폰 번호를 입력해 주세요.');
       return;
     }
-    if (!phoneConsent) {
-      setErrorMsg('핸드폰 번호 수집 및 문자 수신 동의에 체크해 주세요.');
-      return;
-    }
     if (!consent) {
       setErrorMsg('개인정보 수집 및 이용 동의에 체크해 주세요.');
       return;
@@ -81,7 +76,6 @@ export default function RsvpForm() {
       setName('');
       setPhone('');
       setAttendeeCount(1);
-      setPhoneConsent(false);
       setConsent(false);
     } catch (err: any) {
       console.error("RSVP Submission Error:", err);
@@ -211,20 +205,6 @@ export default function RsvpForm() {
                 required
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 hover:border-gray-300 focus:border-amber-500 focus:bg-white rounded-xl text-sm text-gray-800 transition-all focus:outline-none"
               />
-              {/* Phone Consent Check */}
-              <div className="flex items-start gap-2.5 mt-2 px-1">
-                <input
-                  type="checkbox"
-                  id="phoneConsent"
-                  checked={phoneConsent}
-                  onChange={(e) => setPhoneConsent(e.target.checked)}
-                  required
-                  className="mt-0.5 w-4 h-4 rounded-xs accent-slate-800 border-gray-300 cursor-pointer"
-                />
-                <label htmlFor="phoneConsent" className="text-[11px] text-gray-500 leading-normal cursor-pointer font-medium select-none">
-                  행사 안내 문자(SMS) 수신 및 연락처 수집에 동의합니다. <span className="text-rose-500 font-bold">*</span>
-                </label>
-              </div>
             </div>
 
             {/* Consent Terms Checkbox */}
