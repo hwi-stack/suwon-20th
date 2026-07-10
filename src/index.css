@@ -22,3 +22,24 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(156, 163, 175, 0.5);
 }
+
+@keyframes goldFall {
+  0% {
+    transform: translateY(-10px) translateX(0) rotate(0deg) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(320px) translateX(var(--drift, 15px)) rotate(360deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.gold-sparkle {
+  animation: goldFall var(--duration, 5s) ease-in-out infinite;
+}
