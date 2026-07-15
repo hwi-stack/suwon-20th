@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Copy, Check, Navigation, Train, Bus, Info } from 'lucide-react';
+import { MapPin, Copy, Check, Navigation, Bus, Info } from 'lucide-react';
 
 export default function LocationMap() {
   const [copied, setCopied] = useState(false);
@@ -219,32 +219,36 @@ export default function LocationMap() {
       </div>
 
       {/* Transportation details */}
-      <div className="space-y-3 pt-2">
-        {/* Subway info */}
-        <div className="flex gap-3">
-          <div className="p-1 w-6 h-6 shrink-0 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center">
-            <Train className="w-4 h-4" />
-          </div>
-          <div className="space-y-0.5">
-            <h5 className="text-xs font-bold text-gray-800">지하철 이용 시</h5>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              <strong className="text-blue-700">1호선/수인분당선 수원역 9번 출구</strong>에서 도보 약 12분 (매산로 사거리 방면으로 700m 직진), 또는 버스 환승 후 세무서 앞 정류장 하차
-            </p>
-          </div>
-        </div>
-
+      <div className="space-y-4 pt-2">
         {/* Bus info */}
         <div className="flex gap-3">
           <div className="p-1 w-6 h-6 shrink-0 bg-green-50 text-green-600 rounded-md flex items-center justify-center">
             <Bus className="w-4 h-4" />
           </div>
-          <div className="space-y-0.5">
+          <div className="space-y-2 w-full">
             <h5 className="text-xs font-bold text-gray-800">버스 이용 시</h5>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              <span className="font-semibold text-gray-800">수원세무서·도청입구</span> 또는 <span className="font-semibold text-gray-800">도청오거리</span> 정류장 하차 (도보 2~3분)
-              <br />
-              <span className="text-[11px] text-gray-500">일반: 2, 7, 7-2, 13, 13-4, 82-1, 720-2 등</span>
-            </p>
+            <div className="text-xs text-gray-600 leading-relaxed space-y-3">
+              <div>
+                <p className="font-bold text-slate-800 text-[11px] flex items-center gap-1 mb-1">
+                  <span className="text-[#EC4899] text-[10px]">◆</span> 주변 정류장
+                </p>
+                <div className="pl-3.5 space-y-1 text-slate-600 border-l border-slate-100">
+                  <p>향교.팔달보건소.중앙침례교회</p>
+                  <p>향교.팔달보건소.중앙침례교회</p>
+                  <p>가족여성회관.이춘택병원.수원농협</p>
+                  <p>가족여성회관.이춘택병원.해움미술관.수원농협</p>
+                </div>
+              </div>
+              
+              <div className="pt-2.5 border-t border-slate-100 space-y-1.5">
+                <p className="text-slate-700">
+                  <span className="font-bold text-slate-800">*일반:</span> 10 10-2 10-5 11(수원시동부차고지-원시역2번출구) 11-1 13 13-4 15-1 2-1 32-4 35 37 400 46 720-2 83-1 9 9-1 999 82-1
+                </p>
+                <p className="text-slate-700">
+                  <span className="font-bold text-slate-800">*직행:</span> 3000
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

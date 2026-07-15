@@ -10,15 +10,12 @@ import {
   ChevronDown,
   ChevronUp,
   Settings,
-  Phone
+  Phone,
+  ExternalLink
 } from 'lucide-react';
 import LocationMap from './components/LocationMap';
-import RsvpForm from './components/RsvpForm';
-import AdminPanel from './components/AdminPanel';
 
 export default function App() {
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [showRsvp, setShowRsvp] = useState(false);
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [showShareTooltip, setShowShareTooltip] = useState(false);
 
@@ -324,35 +321,22 @@ export default function App() {
               </div>
             </div>
 
-            {/* RSVP Toggle Button (Premium Deep Slate styling) */}
+            {/* RSVP Button (Opens Google Form in a new tab) */}
             <div className="text-center py-1">
-              <button
-                onClick={() => setShowRsvp(!showRsvp)}
-                id="toggle-rsvp-button"
-                className="w-full py-4 px-6 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-900"
+              <a
+                href="https://forms.gle/miJuRaFHrAxfuUzh8"
+                target="_blank"
+                rel="noopener noreferrer"
+                id="google-rsvp-button"
+                className="w-full py-4 px-6 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-900 active:scale-[0.98]"
               >
-                <Heart className={`w-4 h-4 text-[#C5A059] ${showRsvp ? 'fill-[#C5A059]' : ''}`} />
+                <Heart className="w-4 h-4 text-[#EC4899] fill-[#EC4899]" />
                 <span className="text-xs tracking-wide">
-                  {showRsvp ? '참석여부 등록창 닫기' : '참석여부 등록하기'}
+                  참석여부 등록하기
                 </span>
-                {showRsvp ? <ChevronUp className="w-4 h-4 text-[#C5A059]" /> : <ChevronDown className="w-4 h-4 text-[#C5A059]" />}
-              </button>
+                <ExternalLink className="w-4 h-4 text-slate-400" />
+              </a>
             </div>
-
-            {/* RSVP Form with collapse transition */}
-            <AnimatePresence>
-              {showRsvp && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <RsvpForm />
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* 8. Location Instructions Section */}
             <LocationMap />
@@ -377,34 +361,8 @@ export default function App() {
 
           </div>
 
-          {/* 9. Small Accordion Admin Panel at the very bottom */}
-          <div className="py-8 bg-slate-100/40 border-t border-slate-200/40 px-6 text-center space-y-4">
-            <button
-              onClick={() => setShowAdmin(!showAdmin)}
-              id="toggle-admin-panel"
-              className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-500 hover:text-slate-800 transition-colors py-1.5 px-3.5 rounded-full hover:bg-slate-200/40 cursor-pointer"
-            >
-              <Settings className="w-3.5 h-3.5 text-[#C5A059]" />
-              <span>수원장복 관리자 페이지</span>
-              {showAdmin ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </button>
-
-            <AnimatePresence>
-              {showAdmin && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden text-left"
-                >
-                  <div className="pt-2">
-                    <AdminPanel />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            
+          {/* Footer Copyright */}
+          <div className="py-8 bg-slate-100/40 border-t border-slate-200/40 px-6 text-center">
             <div className="text-[9.5px] text-slate-400 font-medium font-sans">
               © 2026 수원시장애인종합복지관. All Rights Reserved.
             </div>
