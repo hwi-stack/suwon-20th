@@ -79,12 +79,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100/60 font-sans flex items-center justify-center py-0 sm:py-6 md:py-10 selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-slate-100 font-sans flex items-center justify-center py-0 sm:py-6 md:py-10 selection:bg-pink-100 selection:text-pink-900">
       {/* Mobile Frame Container */}
-      <div className="w-full max-w-md bg-[#FAF9F5] min-h-screen sm:min-h-[840px] sm:rounded-[40px] shadow-2xl shadow-slate-900/10 border-0 sm:border-[8px] border-slate-900/5 flex flex-col justify-between overflow-hidden relative">
+      <div className="w-full max-w-md bg-white min-h-screen sm:min-h-[840px] sm:rounded-[40px] shadow-2xl shadow-slate-900/10 border-0 sm:border-[8px] border-slate-900/5 flex flex-col justify-between overflow-hidden relative">
         
         {/* Top Premium Gold Highlight Bar */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-slate-900 via-[#C5A059] to-slate-900 z-50" />
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#EC4899] via-[#C5A059] to-[#8B5CF6] z-50" />
 
         {/* Floating Action Buttons (Share) */}
         <div className="absolute top-4 right-4 flex items-center gap-2.5 z-40">
@@ -159,32 +159,38 @@ export default function App() {
                   { left: '71%', delay: '3.3s', duration: '5.9s', drift: '-8px', size: '10px' },
                   { left: '86%', delay: '0.9s', duration: '6.3s', drift: '10px', size: '8px' },
                   { left: '94%', delay: '2.7s', duration: '5.6s', drift: '-14px', size: '10px' }
-                ].map((s, idx) => (
-                  <div
-                    key={idx}
-                    className="gold-sparkle absolute"
-                    style={{
-                      left: s.left,
-                      top: '-20px',
-                      width: s.size,
-                      height: s.size,
-                      '--duration': s.duration,
-                      '--drift': s.drift,
-                      animationDelay: s.delay,
-                    } as React.CSSProperties}
-                  >
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-[#F5CB72] drop-shadow-[0_0_4px_rgba(255,223,158,0.7)]">
-                      <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4Z" />
-                    </svg>
-                  </div>
-                ))}
+                ].map((s, idx) => {
+                  const starColors = ['#FFD1E8', '#E6D7FF', '#FFE6B3', '#FFE1F0', '#F0E6FF', '#FFF0CE', '#FFEAF5', '#F5EEFF', '#FFF8E3'];
+                  const color = starColors[idx % starColors.length];
+                  return (
+                    <div
+                      key={idx}
+                      className="gold-sparkle absolute"
+                      style={{
+                        left: s.left,
+                        top: '-20px',
+                        width: s.size,
+                        height: s.size,
+                        '--duration': s.duration,
+                        '--drift': s.drift,
+                        animationDelay: s.delay,
+                        color: color,
+                        opacity: 0.45,
+                      } as React.CSSProperties}
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full drop-shadow-[0_0_4px_currentColor]">
+                        <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4Z" />
+                      </svg>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="w-full relative">
                 <img
-                  src="https://drive.google.com/thumbnail?id=1cN505LfCJLnnwkAYZE5oAsYgDZBJ32rQ&sz=w1000"
+                  src="https://drive.google.com/thumbnail?id=1_w9ZDvqic5tHrBF-jkmD_OnaegWScL4D&sz=w1000"
                   onError={(e) => {
-                    e.currentTarget.src = "https://lh3.googleusercontent.com/d/1cN505LfCJLnnwkAYZE5oAsYgDZBJ32rQ";
+                    e.currentTarget.src = "https://lh3.googleusercontent.com/d/1_w9ZDvqic5tHrBF-jkmD_OnaegWScL4D";
                   }}
                   alt="수원시장애인종합복지관 개관 20주년 기념식 초대장"
                   className="w-full h-auto object-cover mix-blend-multiply rounded-2xl animate-fade-in"
@@ -193,31 +199,37 @@ export default function App() {
               </div>
             </div>
 
-            {/* 4. Countdown Timer Widget (Luxurious Dark Minimalist Slate Style) */}
-            <div className="bg-slate-900 border border-slate-850 rounded-3xl p-5.5 text-center space-y-3.5 shadow-md relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C5A059]/40 to-transparent" />
-              <p className="text-[11px] font-bold text-[#C5A059] tracking-[0.2em] uppercase font-sans">
-                개관 20주년 기념식 카운트다운
-              </p>
-              <div className="flex justify-center">
-                <div className="bg-white/[0.04] backdrop-blur-md rounded-2xl py-3 px-8 border border-white/[0.06] shadow-inner inline-flex flex-col items-center min-w-[140px]">
-                  <span className="block text-3xl font-extrabold text-white font-mono tracking-tight">
-                    {countdown.days === 0 ? 'D-Day' : `D-${countdown.days}`}
-                  </span>
-                  <span className="block text-[9px] font-bold text-slate-400 tracking-wider mt-1">
-                    DAYS REMAINING
-                  </span>
-                </div>
+            {/* 4. Countdown Timer Widget (Premium Pink-Purple-Gold Accent Card) */}
+            <div className="bg-gradient-to-br from-[#FFF5F8] via-white to-[#F6F0FF] border border-pink-100/60 rounded-3xl p-5.5 text-center space-y-4 shadow-md relative overflow-hidden">
+              {/* Decorative top gradient light glow */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#EC4899]/30 via-[#C5A059]/30 to-[#8B5CF6]/30" />
+              
+              <div className="flex items-center justify-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#EC4899] animate-pulse" />
+                <p className="text-[11px] font-bold text-slate-700 tracking-[0.15em] uppercase font-sans">
+                  개관 20주년 기념식까지
+                </p>
+                <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6] animate-pulse" />
+              </div>
+
+              {/* Elegant Days-Only countdown block */}
+              <div className="inline-flex flex-col items-center justify-center bg-white/90 backdrop-blur-xs rounded-2xl py-4 px-10 border border-purple-100/50 shadow-xs min-w-[160px] hover:border-pink-200 transition-all">
+                <span className="block text-4xl font-black bg-gradient-to-r from-[#EC4899] via-[#C5A059] to-[#8B5CF6] bg-clip-text text-transparent font-mono tracking-tight leading-none">
+                  {countdown.days === 0 && countdown.hours === 0 && countdown.minutes === 0 && countdown.seconds === 0 ? 'D-DAY' : `D-${countdown.days}`}
+                </span>
+                <span className="block text-[10px] font-bold text-slate-400 tracking-widest mt-2 uppercase font-sans">
+                  DAYS REMAINING
+                </span>
               </div>
             </div>
 
             {/* 5. Invitation Letter (초대의 글, Premium Styled Paper Vibe) */}
             <div className="bg-white rounded-3xl p-7 border border-slate-100 shadow-sm space-y-5.5 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-[#C5A059]/5 rounded-full -mr-10 -mt-10 opacity-60 blur-xl" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#C5A059]/5 rounded-full -ml-10 -mb-10 opacity-60 blur-xl" />
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[#EC4899]/5 rounded-full -mr-10 -mt-10 opacity-60 blur-xl" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#8B5CF6]/5 rounded-full -ml-10 -mb-10 opacity-60 blur-xl" />
 
-              <div className="flex justify-center text-[#C5A059]">
-                <Heart className="w-5 h-5 fill-[#C5A059]/10" />
+              <div className="flex justify-center text-[#EC4899]">
+                <Heart className="w-5 h-5 fill-[#EC4899]/10" />
               </div>
 
               <h3 className="text-center text-base font-serif font-bold text-slate-900 tracking-tight leading-relaxed">
@@ -294,17 +306,14 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Program Outline (식순) */}
+              {/* Program Outline (주요 행사) */}
               <div className="bg-slate-50/80 rounded-2xl p-5 border border-slate-100 space-y-4">
-                <h4 className="text-xs font-bold text-slate-800 border-l-2 border-[#C5A059] pl-2">행사 순서 (식순)</h4>
+                <h4 className="text-xs font-bold text-slate-800 border-l-2 border-[#C5A059] pl-2">주요 행사</h4>
                 <div className="space-y-3.5 text-[11px]">
                   {[
-                    '축하공연',
-                    '국민의례 및 내빈 소개',
-                    '함께 걸어온 20년',
-                    '유공자 표창',
-                    '축사',
-                    '기념촬영'
+                    '기념식',
+                    '행복한 밥상',
+                    '장애인식개선 부스'
                   ].map((title, idx) => (
                     <div key={idx} className="flex items-center gap-3.5 text-slate-600 leading-normal border-b border-dashed border-slate-200/60 pb-2.5 last:border-0 last:pb-0">
                       <span className="font-mono font-bold text-[10px] text-[#C5A059] bg-slate-100 px-2.5 py-0.5 rounded-md min-w-[28px] text-center border border-slate-200/30">0{idx + 1}</span>
